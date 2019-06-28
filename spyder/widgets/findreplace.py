@@ -449,11 +449,13 @@ class FindReplace(QWidget):
             replace_text = to_text_string(self.replace_text.currentText())
             search_text = to_text_string(self.search_text.currentText())
             re_pattern = None
+            case = self.case_button.isChecked()
+            re_flags = re.MULTILINE if case else re.IGNORECASE|re.MULTILINE
 
             # Check regexp before proceeding
             if self.re_button.isChecked():
                 try:
-                    re_pattern = re.compile(search_text)
+                    re_pattern = re.compile(search_text, re_flags)
                     # Check if replace_text can be substituted in re_pattern
                     # Fixes issue #7177
                     re_pattern.sub(replace_text, '')
@@ -461,7 +463,6 @@ class FindReplace(QWidget):
                     # Do nothing with an invalid regexp
                     return
 
-            case = self.case_button.isChecked()
             first = True
             cursor = None
             while True:
