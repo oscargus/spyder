@@ -28,6 +28,7 @@ from spyder.config.base import get_translation
 from spyder.config.manager import CONF
 from spyder.utils.qthelpers import (add_actions, create_action,
                                     create_plugin_layout)
+from spyder.utils.sourcecode import disambiguate_fname
 
 # This is needed for testing this module as a stand alone script
 try:
@@ -55,9 +56,11 @@ class BreakpointTableModel(QAbstractTableModel):
         self._data = data
         keys = list(data.keys())
         self.breakpoints = []
+        self.filenames = []
         for key in keys:
             bp_list = data[key]
             if bp_list:
+                self.filenames.append(key)
                 for item in data[key]:
                     self.breakpoints.append((key, item[0], item[1], ""))
         self.reset()
@@ -106,7 +109,7 @@ class BreakpointTableModel(QAbstractTableModel):
             return to_qvariant()
         if role == Qt.DisplayRole:
             if index.column() == 0:
-                value = osp.basename(self.get_value(index))
+                value = disambiguate_fname(self.filenames, self.get_value(index))
                 return to_qvariant(value)
             else:
                 value = self.get_value(index)
